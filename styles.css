@@ -37,8 +37,10 @@ h1 {
 }
 
 #intro-paragraph {
-    font-size: 14px;
+    font-size: 13px;
     margin-top: 5px;
+    font-family: "Times New Roman",Times, serif;
+    font-style: italic;
 }
 
 /* Carrousel */
