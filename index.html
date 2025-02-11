@@ -8,10 +8,17 @@
 </head>
 <body>
     <header>
-        <img src="logo.png" alt="Logo Action Zuki" id="logo" />
-        <h1>Action Zuki au Kivu</h1>
+        <div class="gauche">
+            <img src="logo.png" alt="Logo Action Zuki" id="logo" />
+            
+        </div>
+        <div>
+             <h1>Action Zuki au Kivu</h1>
         <p id="intro-paragraph">Initiative pour la promotion du bien-être et des droits de l’enfant au Kivu</p>
-    </header>
+    
+        </div>
+       
+          </header>
     
 
     <!-- Carrousel d'images -->
@@ -176,54 +183,135 @@
     </footer>
 
     <script>
-        // Gestion du carrousel
-        let index = 0;
-        const items = document.querySelectorAll(".carousel-item");
-        const total = items.length;
+        
+ 
+let index = 0;
+const items = document.querySelectorAll(".carousel-item");
+const total = items.length;
 
-        function showImage(i) {
-            items.forEach(item => {
-                item.style.display = "none";
-            });
-            items[i].style.display = "block";
+function showImage(i) {
+    items.forEach(item => {
+        item.style.display = "none"; // Masque toutes les images
+        const text = item.querySelector(".carousel-message"); // Sélectionne le texte de chaque image
+        if (text) {
+            text.style.opacity = "0"; // Masque le texte par défaut
+            text.style.transition = "opacity 1s"; // Ajoute une transition fluide
         }
+    });
 
-        document.getElementById("next").addEventListener("click", () => {
-            index = (index + 1) % total;
-            showImage(index);
+    items[i].style.display = "block"; // Affiche l'image
+    const text = items[i].querySelector(".carousel-message"); // Sélectionne le texte de l'image actuelle
+    if (text) {
+        text.style.opacity = "1"; // Affiche le texte de l'image actuelle
+        revealText(text.id);  // Appelle la fonction de révélation du texte
+    }
+}
+
+document.getElementById("next").addEventListener("click", () => {
+    index = (index + 1) % total;
+    showImage(index);
+});
+
+document.getElementById("prev").addEventListener("click", () => {
+    index = (index - 1 + total) % total;
+    showImage(index);
+});
+
+setInterval(() => {
+    index = (index + 1) % total;
+    showImage(index);
+}, 3000);
+
+// Fonction pour afficher le texte mot par mot
+function revealText(id) {
+    const element = document.getElementById(id);
+    const text = element.innerText;  // Récupérer le texte brut
+    const originalHTML = element.innerHTML; // Sauvegarder l'HTML original
+    element.innerHTML = '';  // Vider le contenu existant
+
+    // Séparer le texte en mots
+    const words = text.split(' ');
+
+    let currentWord = 0;
+
+    // Afficher un mot toutes les 80 ms
+    function showWord() {
+        if (currentWord < words.length) {
+            const wordSpan = document.createElement('span');
+            wordSpan.innerText = words[currentWord] + ' '; // Ajouter un espace après chaque mot
+            wordSpan.style.opacity = 0;
+            element.appendChild(wordSpan);
+            
+            // Animer chaque mot avec un délai
+            setTimeout(() => {
+                wordSpan.style.transition = 'opacity 0.3s';
+                wordSpan.style.opacity = 1;
+            }, currentWord * 80); // Augmenter le délai pour chaque mot
+            
+            currentWord++;
+            setTimeout(showWord, 80); // Appeler la fonction à nouveau après un délai
+        } else {
+            element.innerHTML = originalHTML;  // Restaurer l'HTML original une fois le texte affiché
+        }
+    }
+
+    showWord(); // Commencer l'animation
+}
+
+// Fonction pour appliquer les styles après l'affichage d'une section
+function applyStyles(section) {
+    // Réappliquer les couleurs des titres
+    const titles = section.querySelectorAll("h1, h2, h3, h4, h5, h6");
+    titles.forEach(title => {
+        title.style.color = "black"; // Exemple : couleur noire pour les titres
+        title.style.fontWeight = "bold"; // Exemple : titre en gras
+        title.style.fontSize = "2em"; // Ajuster la taille du titre
+    });
+
+    // Réappliquer d'autres styles aux paragraphes
+    const paragraphs = section.querySelectorAll("p");
+    paragraphs.forEach(p => {
+        p.style.fontSize = "16px"; // Taille de texte
+        p.style.lineHeight = "1.5"; // Espacement entre les lignes
+        p.style.color = "#333"; // Couleur du texte
+    });
+
+    // Si tu veux réappliquer d'autres styles à des éléments spécifiques, ajoute-les ici
+}
+
+// Gestion des sections à afficher/masquer
+const links = document.querySelectorAll("a[data-target]");
+
+links.forEach(link => {
+    link.addEventListener("click", function(event) {
+        event.preventDefault();
+        const targetId = this.getAttribute("data-target");
+        const section = document.getElementById(targetId);
+
+        // Masquer toutes les sections, sauf "accueil"
+        document.querySelectorAll("section").forEach(sec => {
+            if (sec.id !== "accueil") {
+                sec.style.display = "none"; // Masque les autres sections
+            }
         });
 
-        document.getElementById("prev").addEventListener("click", () => {
-            index = (index - 1 + total) % total;
-            showImage(index);
-        });
+        // Afficher la section sélectionnée
+        section.style.display = "block";
 
-        setInterval(() => {
-            index = (index + 1) % total;
-            showImage(index);
-        }, 3000);
+        // Déplacer la liste des liens après la section
+        section.insertAdjacentElement("afterend", document.getElementById("links"));
 
-        // Gestion des sections à afficher/masquer
-        const links = document.querySelectorAll("a[data-target]");
+        // Appliquer les styles à la nouvelle section
+        applyStyles(section);
 
-        links.forEach(link => {
-            link.addEventListener("click", function(event) {
-                event.preventDefault();
-                const targetId = this.getAttribute("data-target");
-                const section = document.getElementById(targetId);
-                const linksContainer = document.getElementById("links");
+        // Afficher le texte mot par mot pour cette section
+        revealText(targetId);
+    });
+});
 
-                if (section.style.display === "block") {
-                    section.style.display = "none";
-                } else {
-                    section.style.display = "block";
-                }
+// Affichage initial de la section accueil
+document.getElementById("accueil").style.display = "block";  // La section accueil reste toujours visible
 
-                section.insertAdjacentElement("afterend", linksContainer);
-            });
-        });
-
-        document.getElementById("accueil").style.display = "block";
     </script>
 </body>
 </html>
